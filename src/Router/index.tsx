@@ -5,20 +5,12 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
-import styled from "styled-components";
-
-const CenterItAll = styled.div`
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
-`;
+import Maze from "src/components/main/Maze";
+import { RoutePath } from "./routes";
 
 const routes = [
   {
-    routePath: RoutePath.Maze,
+    routePath: RoutePath.MAZE,
     component: <Maze />
   }
 ];

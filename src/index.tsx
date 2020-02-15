@@ -2,21 +2,12 @@ import "./index.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
-import { Provider } from "react-redux";
-import { createStore } from "redux";
 import HttpsRedirect from "react-https-redirect";
 import { SnackbarProvider } from "material-ui-snackbar-provider";
 
-import { rootReducer } from "src/store";
 import Router from "src/Router";
 
 import * as serviceWorker from "./util/serviceWorker";
-
-const store = createStore(rootReducer, {
-  auth: {
-    token: localStorage.getItem("auth_token")
-  }
-});
 
 const myTheme = createMuiTheme({
   palette: {
@@ -27,13 +18,11 @@ const myTheme = createMuiTheme({
 
 ReactDOM.render(
   <SnackbarProvider SnackbarProps={{ autoHideDuration: 2000 }}>
-    <Provider store={store}>
-      <MuiThemeProvider theme={myTheme}>
-        <HttpsRedirect>
-          <Router />
-        </HttpsRedirect>
-      </MuiThemeProvider>
-    </Provider>
+    <MuiThemeProvider theme={myTheme}>
+      <HttpsRedirect>
+        <Router />
+      </HttpsRedirect>
+    </MuiThemeProvider>
   </SnackbarProvider>,
   document.getElementById("root")
 );
