@@ -2,13 +2,24 @@ import React, { ReactChild } from "react";
 import { Cell, OuterWrapper, GridWrapper, ControlPanel } from "./components";
 import { makePair, random_range } from "src/util/helper";
 import { Pair } from "src/util/types";
-import { Button, Typography, CircularProgress } from "@material-ui/core";
+import {
+  Button,
+  Typography,
+  CircularProgress,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Paper
+} from "@material-ui/core";
+import {
+  ArrowBack as ArrowBackIcon,
+  Help as HelpIcon
+} from "@material-ui/icons";
+import { Link } from "react-router-dom";
+import ConfirmDialog from "src/components/generic/dialog/ConfirmDialog";
 
 const ROW_LEN = 20;
 const COLUMN_LEN = 20;
-
-const A = makePair<number>(0, 0);
-const B = makePair<number>(ROW_LEN - 1, COLUMN_LEN - 1);
 
 const dr: number[] = [0, -1, 0, 1];
 const dc: number[] = [-1, 0, 1, 0];
@@ -136,7 +147,7 @@ function BFS(source: Pair<number>, dest: Pair<number>, conn: boolean[][][][]) {
         maxDist = Math.max(maxDist, dist[nr][nc]);
         q.push(makePair<number>(nr, nc));
 
-        if (nr === B.fi && nc === B.se) {
+        if (nr === dest.fi && nc === dest.se) {
           return { dist, trace, maxDist };
         }
       }
@@ -144,6 +155,18 @@ function BFS(source: Pair<number>, dest: Pair<number>, conn: boolean[][][][]) {
   }
 
   return { dist, trace, maxDist: -1 };
+}
+
+function AboutContent() {
+  return (
+    <div>
+      <Typography variant="h6">What is Maze Simulator?</Typography>
+      <Typography variant="subtitle1">
+        Maze Simulator is a place where you can simulate Maze Generation (using
+        Recursive Division) and Pathfinding (using BFS).
+      </Typography>
+    </div>
+  );
 }
 
 export default () => {
@@ -154,15 +177,30 @@ export default () => {
   const [conn, setConn] = React.useState<boolean[][][][]>(INITIAL_CONN);
   const [dist, setDist] = React.useState<number[][]>(null);
   const [solutionTrace, setSolutionTrace] = React.useState<boolean[][]>(null);
+  const [helpDialogOpen, setHelpDialogOpen] = React.useState<boolean>(false);
+  const [draggingA, setDraggingA] = React.useState<boolean>(false);
+  const [draggingB, setDraggingB] = React.useState<boolean>(false);
+  const [moveable, setMoveable] = React.useState<boolean>(false);
+  const [guideText, setGuideText] = React.useState<string>("");
+  const [A, setA] = React.useState<Pair<number>>(makePair<number>(0, 0));
+  const [B, setB] = React.useState<Pair<number>>(
+    makePair<number>(ROW_LEN - 1, COLUMN_LEN - 1)
+  );
 
   const handleGenerate = React.useCallback(async () => {
+    setMoveable(false);
     setGenerating(true);
     setTraceDepth(null);
     setDist(null);
     setSolutionTrace(null);
 
     const generateTrace: Pair<number>[][][] = [];
-    generate(A, B, 0, generateTrace);
+    generate(
+      makePair<number>(0, 0),
+      makePair<number>(ROW_LEN - 1, COLUMN_LEN - 1),
+      0,
+      generateTrace
+    );
 
     const _conn = getInitialConn();
 
@@ -196,12 +234,13 @@ export default () => {
       }, i * traceDepthDelay + 1000);
     }
 
-    let cur = makePair<number>(ROW_LEN - 1, COLUMN_LEN - 1);
+    let cur = B;
     let i = 1;
     while (true) {
       if (cur.fi === -1 && cur.se === -1) {
         setTimeout(() => {
           setSearching(false);
+          setMoveable(true);
         }, i * 150 + (maxDist + 2) * traceDepthDelay + 1000);
         break;
       }
@@ -213,15 +252,72 @@ export default () => {
       cur = trace[cur.fi][cur.se];
       i += 1;
     }
-  }, [conn]);
+  }, [conn, A, B]);
+
+  const reBFS = React.useCallback(() => {
+    const { dist, trace, maxDist } = BFS(A, B, conn);
+    setDist(dist);
+    const _solutionTrace = getInitialSolutionTrace();
+    setTraceDepth(maxDist + 1);
+
+    let cur = B;
+    while (true) {
+      if (cur.fi === -1 && cur.se === -1) {
+        break;
+      }
+      const _cur = cur;
+      _solutionTrace[_cur.fi][_cur.se] = true;
+      cur = trace[cur.fi][cur.se];
+    }
+    setSolutionTrace([..._solutionTrace]);
+  }, [conn, A, B]);
 
   const grid: ReactChild[] = React.useMemo<ReactChild[]>(() => {
     const grid: ReactChild[] = [];
-    const lineStyle = "2px solid gold";
+    const lineStyle = "1.5px solid gold";
     for (let r = 0; r < ROW_LEN; r++) {
       const row: ReactChild[] = [];
       for (let c = 0; c < COLUMN_LEN; c++) {
         const style: React.CSSProperties = { width: `${100 / ROW_LEN}%` };
+
+        // type
+        if (A.fi === r && A.se === c) {
+          style.background = "green";
+          if (draggingA) {
+            // style.border = "1.5px solid white";
+          } else {
+            // style.border = "";
+          }
+        } else if (B.fi === r && B.se === c) {
+          style.background = "red";
+          if (draggingB) {
+            // style.border = "1.5px solid white";
+          } else {
+            // style.border = "";
+          }
+        } else if (dist && traceDepth && dist[r][c] !== 0 && solutionTrace) {
+          const borderNames = [
+            "borderLeft",
+            "borderTop",
+            "borderRight",
+            "borderBottom"
+          ];
+          if (solutionTrace[r][c]) {
+            style.background = "lightblue";
+            for (let i = 0; i < 4; i++) {
+              // @ts-ignore
+              style[borderNames[i]] = "1.5px solid lightblue";
+            }
+          } else if (dist[r][c] === traceDepth) {
+            style.background = "lightgray";
+          } else if (dist[r][c] < traceDepth) {
+            style.background = "gray";
+            for (let i = 0; i < 4; i++) {
+              // @ts-ignore
+              style[borderNames[i]] = "1.5px solid gray";
+            }
+          }
+        }
 
         // fences
         if (r > 0 && !conn[r][c][r - 1][c]) style.borderTop = lineStyle;
@@ -231,27 +327,124 @@ export default () => {
         if (c < COLUMN_LEN - 1 && !conn[r][c][r][c + 1])
           style.borderRight = lineStyle;
 
-        // type
-        if (dist && traceDepth && dist[r][c] !== 0 && solutionTrace) {
-          if (solutionTrace[r][c]) {
-            style.background = "cornflowerblue";
-          } else if (dist[r][c] === traceDepth) {
-            style.background = "darkgray";
-          } else if (dist[r][c] < traceDepth) {
-            style.background = "gray";
-          }
-        }
-        row.push(<Cell style={style} />);
+        row.push(
+          <Cell
+            key={c}
+            style={style}
+            onMouseDown={e => {
+              if (searching || generating) return;
+              if (A.fi === r && A.se === c) {
+                setDraggingA(true);
+              } else if (B.fi === r && B.se === c) {
+                setDraggingB(true);
+              }
+            }}
+            onMouseUp={e => {
+              if (searching || generating) return;
+              if (A.fi === r && A.se === c) {
+                setDraggingA(false);
+              } else if (B.fi === r && B.se === c) {
+                setDraggingB(false);
+              }
+            }}
+            onMouseEnter={e => {
+              if (draggingA) {
+                setA(makePair<number>(r, c));
+              } else if (draggingB) {
+                setB(makePair<number>(r, c));
+              }
+            }}
+          />
+        );
       }
-      grid.push(<div style={{ display: "flex" }}>{row}</div>);
+      grid.push(
+        <div key={r} style={{ display: "flex" }}>
+          {row}
+        </div>
+      );
     }
     return grid;
-  }, [conn, traceDepth, dist, solutionTrace]);
+  }, [
+    conn,
+    traceDepth,
+    dist,
+    solutionTrace,
+    A,
+    B,
+    draggingA,
+    draggingB,
+    generating,
+    searching
+  ]);
+
+  // guideText
+  React.useEffect(() => {
+    const guideTexts = [
+      "Have fun with the Maze!",
+      "You can move the Start Node and End Node by holding LMOUSE (only on Computer)",
+      "If you experience lag, please set your battery performance to Medium/High (on Laptop)"
+    ];
+    let index = 0;
+    const interval = setInterval(() => {
+      setGuideText(guideTexts[index]);
+      index = (index + 1) % guideTexts.length;
+    }, 5000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  // reBFS
+  React.useEffect(() => {
+    if (moveable) reBFS();
+  }, [A, B, moveable, reBFS]);
 
   return (
     <>
+      <AppBar position="static">
+        <Toolbar>
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            <IconButton edge="start" color="inherit">
+              <ArrowBackIcon />
+            </IconButton>
+          </Link>
+          <Typography
+            variant="h6"
+            style={{ flexGrow: 1, marginLeft: "0.8rem" }}
+          >
+            Maze Simulator
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <br />
+      <br />
       <OuterWrapper>
         <GridWrapper>
+          <Paper elevation={2} style={{ padding: "0.8rem 1.5rem" }}>
+            <Button
+              onClick={handleGenerate}
+              color="primary"
+              variant="contained"
+              disabled={generating || searching}
+            >
+              {generating ? <CircularProgress size={24} /> : "Generate"}
+            </Button>
+            <Button
+              onClick={handleBFS}
+              style={{ marginLeft: "1rem" }}
+              color="primary"
+              variant="contained"
+              disabled={generating || searching || !generated}
+            >
+              {searching ? <CircularProgress size={24} /> : "Find a path"}
+            </Button>
+            <IconButton
+              onClick={() => setHelpDialogOpen(true)}
+              style={{ marginLeft: "1rem" }}
+            >
+              <HelpIcon />
+            </IconButton>
+          </Paper>
           <div>{grid}</div>
         </GridWrapper>
       </OuterWrapper>
@@ -267,35 +460,23 @@ export default () => {
         ) : (
           <>
             {!generated ? (
-              <Typography variant="h6">
-                Firstly, generate the maze first
+              <Typography variant="h6" align="center">
+                Firstly, generate the maze
               </Typography>
             ) : (
-              <Typography variant="h6">Play around with the Maze</Typography>
+              <Typography variant="h6" align="center">
+                {guideText || "Have fun with the Maze!"}
+              </Typography>
             )}
-            <br />
-            <div>
-              <Button
-                onClick={handleGenerate}
-                variant="contained"
-                color="primary"
-                disabled={generating || searching}
-              >
-                {generating ? <CircularProgress size={24} /> : "Generate"}
-              </Button>
-              <Button
-                onClick={handleBFS}
-                style={{ marginLeft: "1rem" }}
-                variant="contained"
-                color="primary"
-                disabled={generating || searching || !generated}
-              >
-                {searching ? <CircularProgress size={24} /> : "Find a path"}
-              </Button>
-            </div>
           </>
         )}
       </ControlPanel>
+      <ConfirmDialog
+        title="About"
+        message={<AboutContent />}
+        visible={helpDialogOpen}
+        dismiss={() => setHelpDialogOpen(false)}
+      />
     </>
   );
 };

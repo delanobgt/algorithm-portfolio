@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactChild } from "react";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -9,7 +9,7 @@ import { TextField } from "@material-ui/core";
 
 interface Props {
   title: string;
-  message: string;
+  message: ReactChild;
   visible: boolean;
   dismiss: () => any;
   noCallback?: () => any;
@@ -34,6 +34,8 @@ class ConfirmDialog extends React.Component<Props, {}> {
     const { dismiss, yesCallback } = this.props;
     if (yesCallback) {
       yesCallback(dismiss);
+    } else {
+      dismiss();
     }
   };
 
