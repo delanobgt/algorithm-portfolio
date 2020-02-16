@@ -13,7 +13,7 @@ import {
 } from "@material-ui/core";
 import {
   ArrowBack as ArrowBackIcon,
-  Help as HelpIcon
+  HelpOutlined as HelpIcon
 } from "@material-ui/icons";
 import { Link } from "react-router-dom";
 import ConfirmDialog from "src/components/generic/dialog/ConfirmDialog";
@@ -274,7 +274,7 @@ export default () => {
 
   const grid: ReactChild[] = React.useMemo<ReactChild[]>(() => {
     const grid: ReactChild[] = [];
-    const lineStyle = "1.5px solid gold";
+    const lineStyle = "1.5px solid black";
     for (let r = 0; r < ROW_LEN; r++) {
       const row: ReactChild[] = [];
       for (let c = 0; c < COLUMN_LEN; c++) {
@@ -303,18 +303,18 @@ export default () => {
             "borderBottom"
           ];
           if (solutionTrace[r][c]) {
-            style.background = "lightblue";
+            style.background = "yellow";
             for (let i = 0; i < 4; i++) {
               // @ts-ignore
-              style[borderNames[i]] = "1.5px solid lightblue";
+              style[borderNames[i]] = "1.5px solid yellow";
             }
           } else if (dist[r][c] === traceDepth) {
             style.background = "lightgray";
           } else if (dist[r][c] < traceDepth) {
-            style.background = "gray";
+            style.background = "darkgray";
             for (let i = 0; i < 4; i++) {
               // @ts-ignore
-              style[borderNames[i]] = "1.5px solid gray";
+              style[borderNames[i]] = "1.5px solid darkgray";
             }
           }
         }

@@ -12,8 +12,8 @@ export const GridWrapper = styled.div`
 `;
 
 export const Cell = styled.div`
-  background: black;
-  border: 1.5px solid black;
+  background: gainsboro;
+  border: 1.5px solid gainsboro;
   box-sizing: border-box;
 
   &:after {

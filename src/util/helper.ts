@@ -17,3 +17,8 @@ export const random_range = (a: number, b: number) => {
   const plus = Math.floor(Math.random() * (b - a + 1));
   return a + plus;
 };
+
+export const random_range_float = (a: number, b: number) => {
+  const plus = Math.random() * (b - a + 1);
+  return a + plus;
+};
