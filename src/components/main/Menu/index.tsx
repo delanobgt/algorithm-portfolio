@@ -1,6 +1,6 @@
 import React from "react";
 import MazePng from "./maze.png";
-import ConvexPng from "./maze.png";
+import ConvexPng from "./convex.png";
 import {
   Typography,
   CardMedia,
@@ -63,9 +63,10 @@ export default () => {
               <CardContent>
                 <Typography variant="h6">Convex Hull Fun</Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                  Maze Simulator is a place where you can simulate Maze
-                  Generation (using Recursive Division) and Pathfinding (using
-                  BFS).
+                  An implementation of Andrew's Convex Hull algorithm.
+                  <br />
+                  <br />
+                  <br />
                 </Typography>
               </CardContent>
               <CardActions

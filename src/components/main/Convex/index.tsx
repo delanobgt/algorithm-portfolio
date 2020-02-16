@@ -20,7 +20,6 @@ function AboutContent() {
           position: "fixed",
           top: 0,
           left: 0,
-          zIndex: 10,
           display: "flex",
           alignItems: "center"
         }}
@@ -67,8 +66,8 @@ export default () => {
         }}
       >
         <Link
-          to="/dashboard"
-          style={{ position: "fixed", top: "1em", left: "1em" }}
+          to="/"
+          style={{ position: "fixed", top: "1em", left: "1em", zIndex: 1000 }}
         >
           <IconButton style={{ color: "black", background: "white" }}>
             <ArrowBackIcon />
