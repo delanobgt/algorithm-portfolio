@@ -1,6 +1,10 @@
 import React from "react";
 import MazePng from "./maze.png";
 import ConvexPng from "./convex.png";
+import LogoEmail from "../../images/logo_email.png";
+import LogoGithub from "../../images/logo_github.png";
+import LogoLinkedin from "../../images/logo_linkedin.png";
+import LogoPhone from "../../images/logo_phone.png";
 import {
   Typography,
   CardMedia,
@@ -12,6 +16,13 @@ import {
   Grid
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
+import styled from "styled-components";
+
+const LinkDiv = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 export default () => {
   return (
@@ -23,6 +34,57 @@ export default () => {
       <Typography variant="subtitle1" align="center">
         - Irvin Delano -
       </Typography>
+      <br />
+      <div>
+        <LinkDiv>
+          <img alt="" src={LogoPhone} style={{ height: "1rem" }} />
+          <Typography
+            variant="subtitle1"
+            style={{ display: "inline-block", marginLeft: "0.5rem" }}
+          >
+            +6287891864290
+          </Typography>
+        </LinkDiv>
+        <LinkDiv>
+          <img alt="" src={LogoGithub} style={{ height: "1rem" }} />
+          <Typography
+            variant="subtitle1"
+            style={{ display: "inline-block", marginLeft: "0.5rem" }}
+          >
+            <a
+              href="https://www.github.com/delanobgt"
+              rel="noopener noreferrer"
+            >
+              github.com/delanobgt
+            </a>
+          </Typography>
+        </LinkDiv>
+        <LinkDiv>
+          <img alt="" src={LogoEmail} style={{ height: "1rem" }} />
+          <Typography
+            variant="subtitle1"
+            style={{ display: "inline-block", marginLeft: "0.5rem" }}
+          >
+            <a href="mailto:irvindelano@gmail.com" rel="noopener noreferrer">
+              irvindelano@gmail.com
+            </a>
+          </Typography>
+        </LinkDiv>
+        <LinkDiv>
+          <img alt="" src={LogoLinkedin} style={{ height: "1rem" }} />
+          <Typography
+            variant="subtitle1"
+            style={{ display: "inline-block", marginLeft: "0.5rem" }}
+          >
+            <a
+              href="https://www.linkedin.com/in/irvin-delano-9a9489157"
+              rel="noopener noreferrer"
+            >
+              linkedin.com/in/irvin-delano
+            </a>
+          </Typography>
+        </LinkDiv>
+      </div>
       <br />
 
       <Container fixed>
